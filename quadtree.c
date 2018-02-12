@@ -93,13 +93,15 @@ int create_grid(node_t** root, particle_t* particles, int N, int* leaves){
     y_lower = y1;
   }
   
-  //Divide the main quad in 4
+  //Here we already divide the main quad in 4, should we count the particle here and if is bigger than one divide tha quad otherwise 
+  //point to NULL? 
   (*root)->_1 = quads[0];
   (*root)->_2 = quads[1];
   (*root)->_3 = quads[2];
   (*root)->_4 = quads[3];
 
   int no_particles = count_particles(particles, root, N);
+  
   //Should we end the function here and return the n. of particles and recall the function until the number of particles is = 0?
   if (no_particles == 1){
     //only for assertion purposes - make sure all levaes been created
@@ -111,7 +113,8 @@ int create_grid(node_t** root, particle_t* particles, int N, int* leaves){
   if (no_particles > 1){
     int n_child_particles = 0;
     
-    //Should we check how many particles does the function returns?
+    //Should we check how many particles does the function return? 
+    //Here are we dividing again in 4 each quad but we have checked the number of particle in the root? Maybe not 
     create_grid(&quads[0], particles, N, leaves);
     create_grid(&quads[1], particles, N, leaves);
     create_grid(&quads[2], particles, N, leaves);
@@ -138,8 +141,12 @@ int count_particles(particle_t* particles, node_t** node, int N){
   double mass = 0;
 
   //optimzie with register comparisons?
+  //I thought about changing the struct that we are pointing at in each step so each time we don't have to go through all the particles
+  //again but only to the ones contained in the previous bigger quad, then the research should go faster. (1)
   for (int i = 0; i<N; i++){
     if (particles[i].x_pos >= x1 && particles[i].x_pos <= x2 && particles[i].y_pos > y1 && particles[i].y_pos <= y2){
+      //save these particles in a new particle_t structure and pass this to the child node so we're gonna check for the amount of particles
+      //through a smaller array of structs 
       counter ++;
       x_sum += particles[i].x_pos;
       y_sum += particles[i].y_pos;
