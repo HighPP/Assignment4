@@ -22,10 +22,54 @@ int create_grid(node_t** root, particle_t* particles, int N, int* leaves){
   double y_lower = (y1 + y2)*0.5;
   double y_upper = y2;
 
+  //Maybe we can cobine together the two for cycles unrolling the second one like this:
+  
+  /*
+    for (int i = 0; i <2; i++){
+    double x_lower = x1;
+    double x_upper = (x2 + x1)*0.5;
+    
+    quads[0+i] = malloc(sizeof(node_t));
+    quads[0+i]->x1 = x_lower;
+    quads[0+i]->x2 = x_upper;
+    quads[0+i]->y1 = y_lower;
+    quads[0+i]->y2 = y_upper;
+    quads[0+i]->x_center = 0;
+    quads[0+i]->y_center = 0;
+    quads[0+i]->total_mass = 0;
+    quads[0+i]->n_particles = 0;
+    quads[0+i]->_1 = NULL;
+    quads[0+i]->_2 = NULL;
+    quads[0+i]->_3 = NULL;
+    quads[0+i]->_4 = NULL;
+
+    x_lower = x_upper;
+    x_upper = x2;
+      
+    quads[1+i] = malloc(sizeof(node_t));
+    quads[1+i]->x1 = x_lower;
+    quads[1+i]->x2 = x_upper;
+    quads[1+i]->y1 = y_lower;
+    quads[1+i]->y2 = y_upper;
+    quads[1+i]->x_center = 0;
+    quads[1+i]->y_center = 0;
+    quads[1+i]->total_mass = 0;
+    quads[1+i]->n_particles = 0;
+    quads[1+i]->_1 = NULL;
+    quads[1+i]->_2 = NULL;
+    quads[1+i]->_3 = NULL;
+    quads[1+i]->_4 = NULL;
+      
+    //adjust y-traverse
+    y_upper = y_lower;
+    y_lower = y1;
+  }
+  */
   for (int i = 0; i <2; i++){
     double x_lower = x1;
     double x_upper = (x2 + x1)*0.5;
     for (int j = 0; j<2; j++){
+      //Instead of using counter should we just use the variable j?
       quads[counter] = malloc(sizeof(node_t));
       quads[counter]->x1 = x_lower;
       quads[counter]->x2 = x_upper;
@@ -48,22 +92,26 @@ int create_grid(node_t** root, particle_t* particles, int N, int* leaves){
     y_upper = y_lower;
     y_lower = y1;
   }
-
+  
+  //Divide the main quad in 4
   (*root)->_1 = quads[0];
   (*root)->_2 = quads[1];
   (*root)->_3 = quads[2];
   (*root)->_4 = quads[3];
 
   int no_particles = count_particles(particles, root, N);
-  //printf("n _ part = %d\n", no_particles);
-  //sleep(1);
+  //Should we end the function here and return the n. of particles and recall the function until the number of particles is = 0?
   if (no_particles == 1){
     //only for assertion purposes - make sure all levaes been created
     (*leaves)++;
   }
-
+ 
+  //If a leaf contains more than one particle then split it again and check how many particles are now inside
+  //Are we splitting again all 4? We should split only the leaf that contains more than 1 particle while leaving the other intact
   if (no_particles > 1){
     int n_child_particles = 0;
+    
+    //Should we check how many particles does the function returns?
     create_grid(&quads[0], particles, N, leaves);
     create_grid(&quads[1], particles, N, leaves);
     create_grid(&quads[2], particles, N, leaves);
