@@ -100,6 +100,7 @@ int create_grid(node_t** root, particle_t* particles, int N, int* leaves){
   (*root)->_3 = quads[2];
   (*root)->_4 = quads[3];
 
+  //It can return an array of particles that we're gonna check for the next children
   int no_particles = count_particles(particles, root, N);
   
   //Should we end the function here and return the n. of particles and recall the function until the number of particles is = 0?
@@ -161,6 +162,44 @@ int count_particles(particle_t* particles, node_t** node, int N){
   return counter;
 }
 
+/*
+particle_t count_particles(particle_t* particles, node_t** node, int N){
+  particle_t* in_particles;
+  double x1, x2, y1, y2;
+  x1 = (*node)->x1;
+  x2 = (*node)->x2;
+  y1 = (*node)->y1;
+  y2 = (*node)->y2;
+  int counter = 0;
+  double x_sum = 0;
+  double y_sum = 0;
+  double mass = 0;
+
+  in_particles =(particle_t*)malloc(sizeof(particle_t));
+  //optimzie with register comparisons?
+  //I thought about changing the struct that we are pointing at in each step so each time we don't have to go through all the particles
+  //again but only to the ones contained in the previous bigger quad, then the research should go faster. (1)
+  for (int i = 0; i<N; i++){
+    if (particles[i].x_pos >= x1 && particles[i].x_pos <= x2 && particles[i].y_pos > y1 && particles[i].y_pos <= y2){
+      //save these particles in a new particle_t structure and pass this to the child node so we're gonna check for the amount of particles
+      //through a smaller array of structs 
+      counter ++;
+      x_sum += particles[i].x_pos;
+      y_sum += particles[i].y_pos;
+      mass += particles[i].mass;
+      
+      realloc(in_particle, count*sizeof(particle_t))
+      memcpy(in_particles[count], particles[i], sizeof(particle_t)); //Does it make sense?
+    }
+  }
+  (*node)->total_mass = mass;
+  (*node)->x_center = x_sum/counter;
+  (*node)->y_center = y_sum/counter;
+  (*node)->n_particles = counter;
+
+  return in_particles;
+}
+*/
 void init_tree(node_t**head, particle_t* particles, int N){
   (*head)->x1 = 0; (*head)->x2 = 1; (*head)->y1 = 0; (*head)->y2 = 1;
   int n_leaves = 0;
