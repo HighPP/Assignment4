@@ -9,8 +9,10 @@
 #include <math.h>
 
 
+//Create the grid for the tree
 int create_grid(node_t** root, particle_t* particles, int N, int* leaves){
   double x1, x2, y1, y2;
+  //Pointers to the smaller quads
   x1 = (*root)->x1;
   x2 = (*root)->x2;
   y1 = (*root)->y1;
@@ -63,39 +65,44 @@ for (int i = 0; i <2; i++){
     y_lower = y1;
   }
   
+  //The rrot node points to the quads
   (*root)->_1 = quads[0];
   (*root)->_2 = quads[1];
   (*root)->_3 = quads[2];
   (*root)->_4 = quads[3];
 
   //It can return an array of particles that we're gonna check for the next children
-  int no_particles = count_particles(particles, root, N);
+  particle_t* in_particle;
+  in_particles = (particle_t*)malloc(sizeof(particle_t));
+  in_particles = count_particles(particles, root, N);
   
-  //Should we end the function here and return the n. of particles and recall the function until the number of particles is = 0?
-  if (no_particles == 1){
+  i = sizeof(in_particles)/sizeof(particle_t);
+  if (i == 1){
     //only for assertion purposes - make sure all levaes been created
     (*leaves)++;
   }
   
   //If a leaf contains more than one particle then split it again and check how many particles are now inside
   //Are we splitting again all 4? We should split only the leaf that contains more than 1 particle while leaving the other intact
-  if (no_particles > 1){
+  if (i > 1){
     int n_child_particles = 0;
     
     //Should we check how many particles does the function return? 
     //Here are we dividing again in 4 each quad but we have checked the number of particle in the root? Maybe not 
-    create_grid(&quads[0], particles, N, leaves);
-    create_grid(&quads[1], particles, N, leaves);
-    create_grid(&quads[2], particles, N, leaves);
-    create_grid(&quads[3], particles, N, leaves);
+    create_grid(&quads[0], in_particles, i, leaves);
+    create_grid(&quads[1], in_particles, i, leaves);
+    create_grid(&quads[2], in_particles, i, leaves);
+    create_grid(&quads[3], in_particles, i, leaves);
+    //isn't it always zero? where n_particles in increased?
     n_child_particles += quads[0]->n_particles;
     n_child_particles += quads[1]->n_particles;
     n_child_particles += quads[2]->n_particles;
     n_child_particles += quads[3]->n_particles;
-    assert(no_particles == n_child_particles);
+    assert(i == n_child_particles);
   }
   free(quads);
-  return no_particles;
+  //We return the number of particles in the main quad that has been split
+  return i;
 }
 
 particle_t count_particles(particle_t* particles, node_t** node, int N){
@@ -118,13 +125,14 @@ particle_t count_particles(particle_t* particles, node_t** node, int N){
     if (particles[i].x_pos >= x1 && particles[i].x_pos <= x2 && particles[i].y_pos > y1 && particles[i].y_pos <= y2){
       //save these particles in a new particle_t structure and pass this to the child node so we're gonna check for the amount of particles
       //through a smaller array of structs 
-      counter ++;
+      
       x_sum += particles[i].x_pos;
       y_sum += particles[i].y_pos;
       mass += particles[i].mass;
       
-      realloc(in_particle, count*sizeof(particle_t))
+      realloc(in_particles, count*sizeof(particle_t))
       memcpy(in_particles[count], particles[i], sizeof(particle_t)); //Does it make sense?
+      counter ++;
     }
   }
   (*node)->total_mass = mass;
@@ -135,6 +143,7 @@ particle_t count_particles(particle_t* particles, node_t** node, int N){
   return in_particles;
 }
 
+// inizialize the tree with the first array of particles
 void init_tree(node_t**head, particle_t* particles, int N){
   (*head)->x1 = 0; (*head)->x2 = 1; (*head)->y1 = 0; (*head)->y2 = 1;
   int n_leaves = 0;
