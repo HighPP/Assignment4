@@ -18,14 +18,15 @@ int create_grid(node_t** root, particle_t* particles, int N, int* leaves){
   y1 = (*root)->y1;
   y2 = (*root)->y2;
 
-  int counter = 0;
+  //int counter = 0;
+  int i;
   node_t** quads = NULL;
   quads = malloc(4 * sizeof(node_t*));
 
   double y_lower = (y1 + y2)*0.5;
   double y_upper = y2;
 
-for (int i = 0; i <2; i++){
+for (i = 0; i <2; i++){
     double x_lower = x1;
     double x_upper = (x2 + x1)*0.5;
     
@@ -72,7 +73,7 @@ for (int i = 0; i <2; i++){
   (*root)->_4 = quads[3];
 
   //It can return an array of particles that we're gonna check for the next children
-  particle_t* in_particle;
+  particle_t* in_particles;
   in_particles = (particle_t*)malloc(sizeof(particle_t));
   in_particles = count_particles(particles, root, N);
   
@@ -105,8 +106,9 @@ for (int i = 0; i <2; i++){
   return i;
 }
 
-particle_t count_particles(particle_t* particles, node_t** node, int N){
+particle_t *count_particles(particle_t* particles, node_t** node, int N){
   particle_t* in_particles;
+  int i;
   double x1, x2, y1, y2;
   x1 = (*node)->x1;
   x2 = (*node)->x2;
@@ -121,7 +123,7 @@ particle_t count_particles(particle_t* particles, node_t** node, int N){
   //optimzie with register comparisons?
   //I thought about changing the struct that we are pointing at in each step so each time we don't have to go through all the particles
   //again but only to the ones contained in the previous bigger quad, then the research should go faster. (1)
-  for (int i = 0; i<N; i++){
+  for (i = 0; i<N; i++){
     if (particles[i].x_pos >= x1 && particles[i].x_pos <= x2 && particles[i].y_pos > y1 && particles[i].y_pos <= y2){
       //save these particles in a new particle_t structure and pass this to the child node so we're gonna check for the amount of particles
       //through a smaller array of structs 
@@ -130,8 +132,8 @@ particle_t count_particles(particle_t* particles, node_t** node, int N){
       y_sum += particles[i].y_pos;
       mass += particles[i].mass;
       
-      realloc(in_particles, count*sizeof(particle_t))
-      memcpy(in_particles[count], particles[i], sizeof(particle_t)); //Does it make sense?
+      realloc(in_particles, (counter+1)*sizeof(particle_t));
+      memcpy(&in_particles[counter], &particles[i], sizeof(particle_t)); //Does it make sense?
       counter ++;
     }
   }
