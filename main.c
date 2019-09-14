@@ -41,7 +41,7 @@ int main(int argc, char **argv){
     //graphics = atoi(argv[5]);
 
   }
-
+///This is just a try to see how Github works 
   double gravitational_constant = 100/N;
   printf("grav const = %f\n", gravitational_constant);
   double epsilon = 1e-3;
